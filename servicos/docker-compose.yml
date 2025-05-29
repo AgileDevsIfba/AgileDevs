@@ -1,0 +1,11 @@
+version: '1.0'
+services:
+  metodos:
+    build: ./dockerfiles/nginx
+    container_name: metodos
+    hostname: metodos
+    restart: always
+    volumes:
+      - ./metodos:/usr/share/nginx/html
+    ports:
+    - "${HOST_IP}:5005:80"

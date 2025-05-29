@@ -4,6 +4,7 @@ class Metodo {
   final String description;
   final String image;
   final int likes;
+  final String folder;
 
   Metodo({
     required this.id,
@@ -11,6 +12,7 @@ class Metodo {
     required this.description, 
     required this.image,
     required this.likes,
+    required this.folder,
   });
 
   factory Metodo.fromJson(Map<String, dynamic> json) {
@@ -20,6 +22,7 @@ class Metodo {
       description: json['description'] as String,
       image: json['image'] ?? 'lib/data/images/method.png',
       likes: json['likes'] as int,
+      folder: json['folder'] as String,
     );
   }
 }

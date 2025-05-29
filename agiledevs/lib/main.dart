@@ -1,10 +1,18 @@
 import 'package:agiledevs/Utils/estado.dart';
+import 'package:agiledevs/screens/detalhes.dart';
 import 'package:agiledevs/screens/metodos.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() => runApp(AgileDevsApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized(); 
+
+  await dotenv.load(fileName: ".env"); 
+
+  runApp(const AgileDevsApp());
+}
 
 class AgileDevsApp extends StatelessWidget {
   const AgileDevsApp({super.key}); // a
@@ -66,6 +74,18 @@ class _TelaState extends State<Tela> {
     if (estadoApp.situacao == Situacao.showMetodos) {
       telaAtual = const Metodos();
     }
+
+    if (estadoApp.situacao == Situacao.showDetails) {
+      telaAtual = const Detalhes();
+    }
+
+    if (estadoApp.situacao == Situacao.showPractices) {
+      telaAtual = Text(
+        'Práticas',
+        style: Theme.of(context).textTheme.titleLarge,
+      );
+    }
+    
     return telaAtual;
   }
 }

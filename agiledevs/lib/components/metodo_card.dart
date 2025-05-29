@@ -23,7 +23,7 @@ class MetodoCard extends StatelessWidget {
             image: DecorationImage(
               image: AssetImage(metodos.image),
               fit: BoxFit.cover,
-              opacity: 0.42,
+              opacity: 0.3,
             ),
             color: const Color(0x80150050),
             borderRadius: BorderRadius.circular(8)
@@ -75,6 +75,7 @@ class MetodoCard extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               fontSize: 16,
+                              fontWeight: FontWeight.w600,
                               color: Colors.white,
                             ),
                           ),

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 enum Situacao {
   showMetodos,
   showDetails,
+  showPractices
 }
 
 class EstadoApp extends ChangeNotifier {
@@ -28,6 +29,11 @@ class EstadoApp extends ChangeNotifier {
   void showDetails(int idMetodo) {
     _situacao = Situacao.showDetails;
     _idMetodo = idMetodo;
+    notifyListeners();
+  }
+
+  void showPractices() {
+    _situacao = Situacao.showPractices;
     notifyListeners();
   }
 

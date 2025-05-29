@@ -18,6 +18,8 @@ dependencies:
   provider: ^6.1.5
   page_view_dot_indicator: ^2.3.0
   toast: ^0.3.0
+  webview_flutter: ^4.11.0
+  flutter_dotenv: ^5.2.1
 
 dev_dependencies:
   flutter_test:
@@ -34,6 +36,7 @@ flutter:
     - lib/data/json/feed.json
     - lib/data/images/method.png
     - lib/data/images/logo.png
+    - .env
 
   # To add assets to your application, add an assets section, like this:
   # assets:

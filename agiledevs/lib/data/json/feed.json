@@ -1,0 +1,67 @@
+{
+    "metodos": [
+        {
+            "id": 1,
+            "title": "Scrum",
+            "description": "Método ágil interativo e incremental.",
+            "image": "lib/data/images/method.png",
+            "likes": 0
+        },
+        {
+            "id": 2,
+            "title": "Extreme Programming (XP)",
+            "description": "Extreme Programming é uma metodologia ágil que enfatiza a programação em par.",
+            "image": "lib/data/images/method.png",
+            "likes": 0
+        },
+        {
+            "id": 3,
+            "title": "Lorem Ipsum",
+            "description": "Lorem Ipsum é um texto fictício usado na indústria gráfica e de impressão.",
+            "image": "lib/data/images/method.png",
+            "likes": 0
+        },
+        {
+            "id": 4,
+            "title": "Lorem Ipsum",
+            "description": "Lorem Ipsum é um texto fictício usado na indústria gráfica e de impressão.",
+            "image": "lib/data/images/method.png",
+            "likes": 0
+        },
+        {
+            "id": 5,
+            "title": "Lorem Ipsum",
+            "description": "Lorem Ipsum é um texto fictício usado na indústria gráfica e de impressão.",
+            "image": "lib/data/images/method.png",
+            "likes": 0
+        },
+        {
+            "id": 6,
+            "title": "Lorem Ipsum",
+            "description": "Lorem Ipsum é um texto fictício usado na indústria gráfica e de impressão.",
+            "image": "lib/data/images/method.png",
+            "likes": 0
+        },
+        {
+            "id": 7,
+            "title": "Lorem Ipsum",
+            "description": "Lorem Ipsum é um texto fictício usado na indústria gráfica e de impressão.",
+            "image": "lib/data/images/method.png",
+            "likes": 0
+        },
+        {
+            "id": 8,
+            "title": "Lorem Ipsum",
+            "description": "Lorem Ipsum é um texto fictício usado na indústria gráfica e de impressão.",
+            "image": "lib/data/images/method.png",
+            "likes": 0
+        },
+        {
+            "id": 9,
+            "title": "Lorem Ultimo Metodo",
+            "description": "Lorem Ipsum é um texto fictício usado na indústria gráfica e de impressão.",
+            "image": "lib/data/images/method.png",
+            "likes": 0
+        }
+    ]
+}

@@ -1,0 +1,274 @@
+import 'dart:convert';
+
+import 'package:agiledevs/Utils/estado.dart';
+import 'package:agiledevs/components/modal_avaliacao.dart';
+import 'package:agiledevs/models/avaliacao.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:toast/toast.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+
+class Detalhes extends StatefulWidget {
+  const Detalhes({super.key});
+
+  @override
+  State<Detalhes> createState() => _DetalhesState();
+}
+
+enum _EstadoMetodo { naoVerificado, temMetodo, semMetodo }
+
+class _DetalhesState extends State<Detalhes> {
+  late dynamic _feedEstatico;
+  bool _isLoading = true;
+  final bool usuarioLogado = estadoApp.usuario != null;
+
+  _EstadoMetodo _temMetodo = _EstadoMetodo.naoVerificado;
+  late dynamic _metodo;
+
+  late List<Avaliacao> _avaliacoesDoMetodo = [];
+
+  late final WebViewController _webViewController;
+
+  @override
+  void initState() {
+    super.initState();
+
+    ToastContext().init(context);
+    _webViewController =
+        WebViewController()
+          ..setJavaScriptMode(JavaScriptMode.unrestricted)
+          ..clearCache()
+          ..setNavigationDelegate(
+            NavigationDelegate(
+              onPageStarted: (url) {
+                setState(() {
+                  _isLoading = true;
+                });
+              },
+              onPageFinished: (url) async {
+                await _loadAvaliacoes();
+                setState(() {
+                  _isLoading = false;
+                });
+              },
+              onNavigationRequest: (NavigationRequest request) {
+                if (request.url.contains('praticas/index.html')) {
+                  estadoApp.showPractices();
+                  return NavigationDecision.prevent;
+                }
+                return NavigationDecision.navigate;
+              },
+            ),
+          );
+    _readFeedEstatico();
+  }
+
+  Future<void> _readFeedEstatico() async {
+    final String conteudoJson = await rootBundle.loadString(
+      "lib/data/json/feed.json",
+    );
+    _feedEstatico = await json.decode(conteudoJson);
+    _carregarMetodos();
+  }
+
+  Future<void> _loadAvaliacoes() async {
+    final jsonString = await rootBundle.loadString(
+      'lib/data/json/avaliacoes.json',
+    );
+    final jsonData = jsonDecode(jsonString);
+    List todas = jsonData['avaliacoes'];
+
+    _avaliacoesDoMetodo =
+        todas
+            .map((item) => Avaliacao.fromJson(item))
+            .where((a) => a.metodoId == estadoApp.idMetodo)
+            .toList();
+  }
+
+  void _carregarMetodos() {
+    setState(() {
+      _metodo = _feedEstatico["metodos"].firstWhere(
+        (metodo) => metodo["id"] == estadoApp.idMetodo,
+      );
+
+      _temMetodo =
+          _metodo != null ? _EstadoMetodo.temMetodo : _EstadoMetodo.semMetodo;
+
+      if (_temMetodo == _EstadoMetodo.temMetodo) {
+        final String apiUrl = dotenv.env['API_BASE_URL']!;
+        final String folder = _metodo["folder"];
+        _webViewController.loadRequest(Uri.parse("$apiUrl/$folder/index.html"));
+      }
+    });
+  }
+
+  Widget _exibirMensagemMetodoInexistente() {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Padding(
+              padding: EdgeInsets.only(left: 6),
+              child: Text("AgileDevs", style: TextStyle(color: Colors.black)),
+            ),
+            GestureDetector(
+              onTap: () {
+                estadoApp.showMetodos();
+              },
+              child: const Icon(Icons.arrow_back, color: Colors.black),
+            ),
+          ],
+        ),
+        iconTheme: const IconThemeData(color: Colors.black),
+        elevation: 0,
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Icon(Icons.error, size: 48, color: Colors.red),
+            SizedBox(height: 16),
+            Text(
+              "Produto inexistente :(",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+                color: Colors.red,
+              ),
+            ),
+            SizedBox(height: 8),
+            Text(
+              "Selecione outro produto na tela anterior.",
+              style: TextStyle(fontSize: 16),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _exibirMetodo() {
+    return Scaffold(
+      appBar: AppBar(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            GestureDetector(
+              onTap: () {
+                estadoApp.showMetodos();
+              },
+              child: const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Icon(Icons.arrow_back),
+              ),
+            ),
+            Row(
+              children: [
+                const Text("AgileDevs"),
+                SizedBox(width: 6),
+                Image.asset(
+                  "lib/data/images/logo.png",
+                  fit: BoxFit.cover,
+                  height: 30,
+                  width: 30,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+      body: Column(
+        children: [
+          // WebView
+          Expanded(
+            child: Stack(children: [
+              WebViewWidget(controller: _webViewController),
+              if (_isLoading)
+            const Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+              ),
+            ),
+            ]),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+            onPressed: () => showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              builder: (context) => Container(
+                height: MediaQuery.of(context).size.height * 0.4,
+                child: ModalAvaliacao(
+                  avaliacoes: _avaliacoesDoMetodo,
+                  usuarioLogado: usuarioLogado,
+                  onAvaliacaoSubmit: (avaliacao) {
+                    setState(() => _avaliacoesDoMetodo.add(avaliacao));
+                  },
+                  onAvaliacaoDelete: (index) {
+                    setState(() => _avaliacoesDoMetodo.removeAt(index));
+                  },
+                ),
+              ),
+            ),
+            label: const Text("Ver avaliações", style: TextStyle(fontSize: 16),),
+            icon: const Icon(Icons.reviews),
+          ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {
+      //     showModalBottomSheet(
+      //       context: context,
+      //       isScrollControlled: true,
+      //       shape: const RoundedRectangleBorder(
+      //         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      //       ),
+      //       builder:
+      //           (context) => DraggableScrollableSheet(
+      //             expand: false,
+      //             initialChildSize: 0.7,
+      //             minChildSize: 0.5,
+      //             maxChildSize: 0.9,
+      //             builder: (context, scrollController) {
+      //               return ModalAvaliacao(
+      //                 avaliacoes: _avaliacoesDoMetodo,
+      //                 usuarioLogado: usuarioLogado,
+      //                 onAvaliacaoSubmit: (avaliacao) {
+      //                   setState(() {
+      //                     _avaliacoesDoMetodo.add(avaliacao);
+      //                   });
+      //                 },
+      //                 onAvaliacaoDelete: (index) {
+      //                   setState(() {
+      //                     _avaliacoesDoMetodo.removeAt(index);
+      //                   });
+      //                 },
+      //               );
+      //             },
+      //           ),
+      //     );
+      //   },
+      //   tooltip: 'Ver avaliações',
+      //   child: const Icon(Icons.reviews),
+      // ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Widget detalhes = const SizedBox.shrink();
+
+    if (_temMetodo == _EstadoMetodo.naoVerificado) {
+      detalhes = const SizedBox.shrink();
+    } else if (_temMetodo == _EstadoMetodo.temMetodo) {
+      detalhes = _exibirMetodo();
+    } else {
+      detalhes = _exibirMensagemMetodoInexistente();
+    }
+
+    return detalhes;
+  }
+}

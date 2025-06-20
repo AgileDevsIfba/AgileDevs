@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scrum</title>
+
+    <!-- BOOTSTRAP -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"
+        crossorigin="anonymous"></script>
+    <!-- FONT -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+
+    <!-- STYLE -->
+    <style>
+        * {
+            margin: 0 !important;
+            padding: 0 !important;
+            box-sizing: border-box !important;
+        }
+        body {
+            color: black;
+            background-color: #d9d9d97c;
+            font-family: 'Inter', sans-serif;
+            height: 100% !important;
+        }
+        .list-group-numbered>.list-group-item::before {
+            font-weight: bold;
+        }
+
+        .list-group-numbered>.list-group-item span {
+            font-weight: 500;
+        }
+        .praticas .list-group-item{
+            border-bottom: 2.3px solid #150050 !important;
+        }
+
+        .papeis .list-group-item {
+            background-color: transparent;
+        }
+
+        h1 {
+            color: #376EFA;
+            font-weight: bold;
+            font-size: 24px;
+        }
+        h2 {
+            font-weight: bold;
+            font-size: 22px;
+        }
+        p{
+            font-size: 16px;
+            font-weight: 400;
+            text-indent: 1.5em
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mt-5 px-3 principal">
+        <h1 class="mb-2">SCRUM</h1>
+        <p>
+                O Scrum é um método ágil interativo e incrmental utilizado no gerenciamento de projetos de software. Com o Scrum é possível estabelecer funções específicas e organizar o trabalho em ciclos curtos e limitados (<strong>sprints</strong>). Durante as interações o sistema é desenvolvido de forma incremental, resultando na criaão de artefatos que coordenam o trabalho em equipe.
+        </p>
+    </div>
+
+    <div class="container mt-2 px-3 ciclo-de-vida">
+        <h2 class="mb-2">Ciclo de vida</h2>
+
+        <p>
+            O ciclo de vida do Scrum é dividio em três fases. A fase inicial (<strong>Inception</strong>) é dedicada ao planejamento geral, definição de metas e produção do <i>Product Backlog</i>, onde são priorizadas as estórias de usuário.
+        </p>
+        <p>
+            Em seguida, ocorre a fase de desenvolvimento, composta por sprints de 2 a 4 semanas, que incluem o planejameto das tarefas (<strong>Sprint Planning</strong>), a execução da sprint com reunioões diárias (<strong>Daily Scrum</strong>) para alinhamento e ao final de cada sprint, 
+            a revisão (<strong>Sprint review</strong>) e retorspectiva (<strong>Sprint retorspective</strong>) que servem com intuíto de avaliar os resultados e identificar melhorias
+        </p>
+        <p>
+            A últma fase é a de encerramento e entrega do projeto. Somente quando todos os objetivos e requisitos são alcançado, é que o produto é preparado para o lançamento e a documentação é finalizada.
+        </p>
+
+        <img src="fases_do_scrum.webp" alt="Ciclo de vida do Scrum" class="img-fluid mt-2 border border-2-secondary">
+    </div>
+
+    <div class="container mt-3 px-3 papeis">
+        <h2 class="mb-2">Papeis importantes</h2>
+
+        <ul class="list-group list-group-numbered ms-0 rounded-0">
+            <li class="list-group-item border border-0"><span class="fw-bold">Product owner (PO):</span> Responsável por definir os objetivos do projeto e a prioridade dos requisitos;</li>
+            <li class="list-group-item border border-0"><span class="fw-bold">Scrum master:</span> Atua como um facilitador, garantindo a fluidez do projeto, remove obstáculos e protege a equipe;</li>
+            <li class="list-group-item border border-0"><span class="fw-bold">Time de desenvolvimento:</span> Equipe responsável pela implementação e testes de software. São multifuncionais e auto-gerenciaveis.</li>
+        </ul>
+    </div>
+
+    <div class="container mt-2 mb-5 praticas">
+        <h2 class="mb-2 mx-3">Práticas</h2>
+
+        <div class="list-group rounded-0 shadow">
+            <a href="../praticas/index.html?pratica=product-backlog" class="list-group-item list-group-item-action list-group-item-light fw-bold text-black border-0 p-3">Product Backlog</a>
+            <a href="../praticas/index.html?pratica=daily-scrum" class="list-group-item list-group-item-action list-group-item-light fw-bold text-black border-0 p-3">Daily Scrum</a>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,2 @@
+# Adicione o IP do host onde o serviço está rodando.
+API_BASE_URL="http://SEU_IP:5005/"

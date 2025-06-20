@@ -1,0 +1,12 @@
+version: '1.0'
+services:
+  webviews:
+    build: ./dockerfiles/nginx
+    container_name: webviews
+    hostname: webviews
+    restart: always
+    volumes:
+      - ./webviews:/usr/share/nginx/html
+    ports:
+    - "${HOST_IP}:5005:80"
+  

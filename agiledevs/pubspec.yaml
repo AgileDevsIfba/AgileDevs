@@ -20,6 +20,8 @@ dependencies:
   toast: ^0.3.0
   webview_flutter: ^4.11.0
   flutter_dotenv: ^5.2.1
+  font_awesome_flutter: ^10.8.0
+  shared_preferences: ^2.2.0
 
 dev_dependencies:
   flutter_test:
@@ -34,6 +36,8 @@ flutter:
 
   assets:
     - lib/data/json/feed.json
+    - lib/data/json/salvos.json
+    - lib/data/json/avaliacoes.json
     - lib/data/images/method.png
     - lib/data/images/logo.png
     - .env

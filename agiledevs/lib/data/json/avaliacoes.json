@@ -1,0 +1,44 @@
+{
+    "avaliacoes": [
+      {
+        "metodo_id": 1,
+        "nome": "João da Silva",
+        "email": "joao@email.com",
+        "nota": 5,
+        "tags_positivas": ["Excelente!", "Facilitou meu trabalho!"],
+        "comentario": "O método Scrum foi excelente para organização da equipe."
+      },
+      {
+        "metodo_id": 1,
+        "nome": "João da pereira",
+        "email": "joao67@email.com",
+        "nota": 3,
+        "tags_positivas": ["Excelente!", "Facilitou meu trabalho!"],
+        "comentario": "O método Scrum foi excelente para organização da equipe."
+      },
+      {
+        "metodo_id": 1,
+        "nome": "Maria Souza",
+        "email": "maria@email.com",
+        "nota": 5,
+        "tags_positivas": ["Excelente!"],
+        "comentario": "O método Scrum foi excelente para organização da equipe."
+      },
+      {
+        "metodo_id": 1,
+        "nome": "Ana Santos",
+        "email": "ana@email.com",
+        "nota": 5,
+        "tags_positivas": ["Excelente!"],
+        "comentario": "O método Scrum foi excelente para organização da equipe."
+      },
+      {
+        "metodo_id": 2,
+        "nome": "Maria Souza",
+        "email": "maria@email.com",
+        "nota": 2,
+        "tags_negativas": ["Ruim!", "Não funcionou para mim!"],
+        "comentario": "Achei a metodologia difícil de aplicar com nossa equipe atual."
+      }
+    ]
+  }

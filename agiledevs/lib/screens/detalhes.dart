@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:agiledevs/Utils/estado.dart';
+import 'package:agiledevs/components/modal_avaliacao.dart';
+import 'package:agiledevs/models/avaliacao.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -19,9 +21,12 @@ enum _EstadoMetodo { naoVerificado, temMetodo, semMetodo }
 class _DetalhesState extends State<Detalhes> {
   late dynamic _feedEstatico;
   bool _isLoading = true;
+  final bool usuarioLogado = estadoApp.usuario != null;
 
   _EstadoMetodo _temMetodo = _EstadoMetodo.naoVerificado;
   late dynamic _metodo;
+
+  late List<Avaliacao> _avaliacoesDoMetodo = [];
 
   late final WebViewController _webViewController;
 
@@ -30,21 +35,32 @@ class _DetalhesState extends State<Detalhes> {
     super.initState();
 
     ToastContext().init(context);
-    _webViewController = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..clearCache()
-      ..setNavigationDelegate(NavigationDelegate(
-        onPageStarted: (url) {
-          setState(() {
-            _isLoading = true;
-          });
-        },
-        onPageFinished: (url) {
-          setState(() {
-            _isLoading = false;
-          });
-        },
-      ));
+    _webViewController =
+        WebViewController()
+          ..setJavaScriptMode(JavaScriptMode.unrestricted)
+          ..clearCache()
+          ..setNavigationDelegate(
+            NavigationDelegate(
+              onPageStarted: (url) {
+                setState(() {
+                  _isLoading = true;
+                });
+              },
+              onPageFinished: (url) async {
+                await _loadAvaliacoes();
+                setState(() {
+                  _isLoading = false;
+                });
+              },
+              onNavigationRequest: (NavigationRequest request) {
+                if (request.url.contains('praticas/index.html')) {
+                  estadoApp.showPractices();
+                  return NavigationDecision.prevent;
+                }
+                return NavigationDecision.navigate;
+              },
+            ),
+          );
     _readFeedEstatico();
   }
 
@@ -54,6 +70,20 @@ class _DetalhesState extends State<Detalhes> {
     );
     _feedEstatico = await json.decode(conteudoJson);
     _carregarMetodos();
+  }
+
+  Future<void> _loadAvaliacoes() async {
+    final jsonString = await rootBundle.loadString(
+      'lib/data/json/avaliacoes.json',
+    );
+    final jsonData = jsonDecode(jsonString);
+    List todas = jsonData['avaliacoes'];
+
+    _avaliacoesDoMetodo =
+        todas
+            .map((item) => Avaliacao.fromJson(item))
+            .where((a) => a.metodoId == estadoApp.idMetodo)
+            .toList();
   }
 
   void _carregarMetodos() {
@@ -122,41 +152,108 @@ class _DetalhesState extends State<Detalhes> {
   }
 
   Widget _exibirMetodo() {
-
     return Scaffold(
       appBar: AppBar(
         title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text("AgileDevs"),
-            SizedBox(width: 6),
-            Image.asset(
-              "lib/data/images/logo.png",
-              fit: BoxFit.cover,
-              height: 30,
-              width: 30,
+            GestureDetector(
+              onTap: () {
+                estadoApp.showMetodos();
+              },
+              child: const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Icon(Icons.arrow_back),
+              ),
+            ),
+            Row(
+              children: [
+                const Text("AgileDevs"),
+                SizedBox(width: 6),
+                Image.asset(
+                  "lib/data/images/logo.png",
+                  fit: BoxFit.cover,
+                  height: 30,
+                  width: 30,
+                ),
+              ],
             ),
           ],
         ),
-        actions: [
-          GestureDetector(
-            onTap: () {
-              estadoApp.showMetodos();
-            },
-            child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Icon(Icons.arrow_back),
+      ),
+      body: Column(
+        children: [
+          // WebView
+          Expanded(
+            child: Stack(children: [
+              WebViewWidget(controller: _webViewController),
+              if (_isLoading)
+            const Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+              ),
             ),
+            ]),
           ),
         ],
       ),
-      body: Stack(
-        children: [
-          WebViewWidget(controller: _webViewController),
-          if (_isLoading) const Center(child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Color.fromARGB(255, 1, 141, 255)),
-          )),
-        ],
-      ),
+      floatingActionButton: FloatingActionButton.extended(
+            onPressed: () => showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              builder: (context) => Container(
+                height: MediaQuery.of(context).size.height * 0.4,
+                child: ModalAvaliacao(
+                  avaliacoes: _avaliacoesDoMetodo,
+                  usuarioLogado: usuarioLogado,
+                  onAvaliacaoSubmit: (avaliacao) {
+                    setState(() => _avaliacoesDoMetodo.add(avaliacao));
+                  },
+                  onAvaliacaoDelete: (index) {
+                    setState(() => _avaliacoesDoMetodo.removeAt(index));
+                  },
+                ),
+              ),
+            ),
+            label: const Text("Ver avaliações", style: TextStyle(fontSize: 16),),
+            icon: const Icon(Icons.reviews),
+          ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {
+      //     showModalBottomSheet(
+      //       context: context,
+      //       isScrollControlled: true,
+      //       shape: const RoundedRectangleBorder(
+      //         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      //       ),
+      //       builder:
+      //           (context) => DraggableScrollableSheet(
+      //             expand: false,
+      //             initialChildSize: 0.7,
+      //             minChildSize: 0.5,
+      //             maxChildSize: 0.9,
+      //             builder: (context, scrollController) {
+      //               return ModalAvaliacao(
+      //                 avaliacoes: _avaliacoesDoMetodo,
+      //                 usuarioLogado: usuarioLogado,
+      //                 onAvaliacaoSubmit: (avaliacao) {
+      //                   setState(() {
+      //                     _avaliacoesDoMetodo.add(avaliacao);
+      //                   });
+      //                 },
+      //                 onAvaliacaoDelete: (index) {
+      //                   setState(() {
+      //                     _avaliacoesDoMetodo.removeAt(index);
+      //                   });
+      //                 },
+      //               );
+      //             },
+      //           ),
+      //     );
+      //   },
+      //   tooltip: 'Ver avaliações',
+      //   child: const Icon(Icons.reviews),
+      // ),
     );
   }
 

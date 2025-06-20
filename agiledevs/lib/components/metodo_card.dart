@@ -1,6 +1,7 @@
 import 'package:agiledevs/Utils/estado.dart';
 import 'package:agiledevs/models/metodo.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:toast/toast.dart';
 
 class MetodoCard extends StatelessWidget {
@@ -26,7 +27,7 @@ class MetodoCard extends StatelessWidget {
               opacity: 0.3,
             ),
             color: const Color(0x80150050),
-            borderRadius: BorderRadius.circular(8)
+            borderRadius: BorderRadius.circular(8),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           child: Row(
@@ -50,15 +51,44 @@ class MetodoCard extends StatelessWidget {
                         ),
                         Container(
                           alignment: Alignment.bottomRight,
-                          child: IconButton(
-                            icon: const Icon(Icons.bookmark_outline),
-                            color: usuarioLogado ? Colors.white : Colors.grey,
-                            onPressed: () {
-                              usuarioLogado
-                                  ? Toast.show("Método salvo com sucesso", duration: Toast.lengthShort,
-                    gravity: Toast.bottom,)
-                                  : Toast.show("Você precisa estar logado para salvar", duration: Toast.lengthShort,
-                    gravity: Toast.bottom,);
+                          child: Consumer<EstadoApp>(
+                            builder: (context, value, child) {
+                              return IconButton(
+                                icon: Icon(
+                                  usuarioLogado && estadoApp.metodosSalvos.contains(metodos.id)
+                                      ? Icons.bookmark
+                                      : Icons.bookmark_border,
+                                ),
+                                color:
+                                    usuarioLogado ? Colors.white : Colors.grey,
+                                onPressed: () async {
+                                  if (!usuarioLogado) {
+                                    Toast.show(
+                                      "Você precisa estar logado para salvar",
+                                      duration: Toast.lengthShort,
+                                      gravity: Toast.bottom,
+                                    );
+                                  } else {
+                                    if (estadoApp.metodosSalvos.contains(
+                                      metodos.id,
+                                    )) {
+                                      await estadoApp.removerMetodo(metodos.id);
+                                      Toast.show(
+                                        "Método removido dos salvos",
+                                        duration: Toast.lengthShort,
+                                        gravity: Toast.bottom,
+                                      );
+                                    } else {
+                                      await estadoApp.salvarMetodo(metodos.id);
+                                      Toast.show(
+                                        "Método salvo com sucesso",
+                                        duration: Toast.lengthShort,
+                                        gravity: Toast.bottom,
+                                      );
+                                    }
+                                  }
+                                },
+                              );
                             },
                           ),
                         ),

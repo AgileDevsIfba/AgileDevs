@@ -1,0 +1,12 @@
+{
+    "metodos_salvos": [
+        {
+            "email": "daiporcenna@gmail.com",
+            "metodos": [
+                {
+                    "id_metodo": 1
+                }
+            ]
+        }
+    ]
+}

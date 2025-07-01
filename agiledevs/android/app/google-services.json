@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "957594657256",
+    "project_id": "agiledevs-ba965",
+    "storage_bucket": "agiledevs-ba965.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:957594657256:android:a44c100ca7c7b7bccb845d",
+        "android_client_info": {
+          "package_name": "com.example.agiledevs"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "957594657256-a1amo07sdbidulbu1gcl9tmbbvvgr2ed.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.agiledevs",
+            "certificate_hash": "c194671c07635f940ffcd1c401d19f075ef814aa"
+          }
+        },
+        {
+          "client_id": "957594657256-nbea9lj53e025shlhiruu3vrdq8nckmo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCwsvzf97LXuUDMmxD9gWX1tcjQ12mbIUU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "957594657256-nbea9lj53e025shlhiruu3vrdq8nckmo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

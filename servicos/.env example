@@ -1,2 +1,0 @@
-# Configuração do host. Adicione o IP do host onde o serviço está rodando.
-HOST_IP = "SEU_IP"

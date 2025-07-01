@@ -1,4 +1,5 @@
 import 'package:agiledevs/Utils/estado.dart';
+import 'package:agiledevs/components/autenticacao_dialog.dart';
 import 'package:agiledevs/models/metodo.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -11,6 +12,8 @@ class MetodoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final estadoApp = Provider.of<EstadoApp>(context);
+    
     return GestureDetector(
       onTap: () {
         estadoApp.showDetails(metodos.id);
@@ -63,10 +66,9 @@ class MetodoCard extends StatelessWidget {
                                     usuarioLogado ? Colors.white : Colors.grey,
                                 onPressed: () async {
                                   if (!usuarioLogado) {
-                                    Toast.show(
-                                      "Você precisa estar logado para salvar",
-                                      duration: Toast.lengthShort,
-                                      gravity: Toast.bottom,
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) => const AutenticacaoDialog(),
                                     );
                                   } else {
                                     if (estadoApp.metodosSalvos.contains(

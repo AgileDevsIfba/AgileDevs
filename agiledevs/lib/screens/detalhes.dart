@@ -215,45 +215,15 @@ class _DetalhesState extends State<Detalhes> {
                 ),
               ),
             ),
-            label: const Text("Ver avaliações", style: TextStyle(fontSize: 16),),
-            icon: const Icon(Icons.reviews),
+            label: const Text(
+              "Avaliações", 
+              style: TextStyle(
+                fontSize: 16,
+                color: Color(0xFF150050)
+              )
+            ),
+        icon: const Icon(Icons.reviews, color: Color(0xFF150050)),
           ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () {
-      //     showModalBottomSheet(
-      //       context: context,
-      //       isScrollControlled: true,
-      //       shape: const RoundedRectangleBorder(
-      //         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      //       ),
-      //       builder:
-      //           (context) => DraggableScrollableSheet(
-      //             expand: false,
-      //             initialChildSize: 0.7,
-      //             minChildSize: 0.5,
-      //             maxChildSize: 0.9,
-      //             builder: (context, scrollController) {
-      //               return ModalAvaliacao(
-      //                 avaliacoes: _avaliacoesDoMetodo,
-      //                 usuarioLogado: usuarioLogado,
-      //                 onAvaliacaoSubmit: (avaliacao) {
-      //                   setState(() {
-      //                     _avaliacoesDoMetodo.add(avaliacao);
-      //                   });
-      //                 },
-      //                 onAvaliacaoDelete: (index) {
-      //                   setState(() {
-      //                     _avaliacoesDoMetodo.removeAt(index);
-      //                   });
-      //                 },
-      //               );
-      //             },
-      //           ),
-      //     );
-      //   },
-      //   tooltip: 'Ver avaliações',
-      //   child: const Icon(Icons.reviews),
-      // ),
     );
   }
 

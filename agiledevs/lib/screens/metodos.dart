@@ -2,11 +2,13 @@ import 'dart:convert';
 
 import 'package:agiledevs/Utils/autenticador.dart';
 import 'package:agiledevs/Utils/estado.dart';
+import 'package:agiledevs/components/autenticacao_dialog.dart';
 import 'package:agiledevs/components/metodo_card.dart';
 import 'package:agiledevs/models/metodo.dart';
 import 'package:flat_list/flat_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:toast/toast.dart';
 
 class Metodos extends StatefulWidget {
@@ -35,6 +37,13 @@ class _MetodosState extends State<Metodos> {
     ToastContext().init(context);
     _controladorFiltragem = TextEditingController();
     _readFeedEstatico();
+    _recuperarUsuario();
+  }
+
+  void _recuperarUsuario() {
+    Autenticador.recuperarUsuario().then(
+      (usuario) => estadoApp.onLogin(usuario),
+    );
   }
 
   Future<void> _readFeedEstatico() async {
@@ -88,6 +97,7 @@ class _MetodosState extends State<Metodos> {
 
   @override
   Widget build(BuildContext context) {
+    final estadoApp = Provider.of<EstadoApp>(context);
     bool usuarioLogado = estadoApp.usuario != null;
     return Scaffold(
       appBar: AppBar(
@@ -104,44 +114,88 @@ class _MetodosState extends State<Metodos> {
           ],
         ),
         actions: [
-          usuarioLogado
-              ? IconButton(
+          MenuAnchor(
+            builder: (
+              BuildContext context,
+              MenuController controller,
+              Widget? child,
+            ) {
+              return IconButton(
+                icon: const Icon(Icons.person),
                 onPressed: () {
-                  setState(() {
-                    estadoApp.onLogout();
-                  });
-                  Toast.show(
-                    "Deslogado com sucesso",
-                    duration: Toast.lengthShort,
-                    gravity: Toast.bottom,
-                  );
+                  if (controller.isOpen) {
+                    controller.close();
+                  } else {
+                    controller.open();
+                  }
                 },
-                icon: const Icon(Icons.logout),
-              )
-              : IconButton(
-                onPressed: () {
-                  Usuario usuario = Usuario(
-                    "daiane porcena",
-                    "daiporcenna@gmail.com",
-                  );
-                  setState(() {
-                    estadoApp.onLogin(usuario);
-                  });
-                  Toast.show(
-                    "Logado com sucesso",
-                    duration: Toast.lengthShort,
-                    gravity: Toast.bottom,
-                  );
-                },
-                icon: const Icon(Icons.login),
-              ),
+              );
+            },
+            menuChildren: [
+              if (!usuarioLogado)
+                MenuItemButton(
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => AutenticacaoDialog(),
+                    );
+                  },
+                  child: SizedBox(
+                    width: 80,
+                    height: 50,
+                    child: Center(
+                      child: Text(
+                        'Login',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Color(0xFF150050),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              if (usuarioLogado)
+                MenuItemButton(
+                  onPressed: () {
+                    Autenticador.logout().then((_) {
+                      setState(() {
+                        estadoApp.onLogout();
+                      });
+                      Toast.show(
+                        "Você foi desconectado com sucesso",
+                        duration: Toast.lengthLong,
+                        gravity: Toast.bottom,
+                      );
+                    });
+                  },
+                  child: SizedBox(
+                    width: 80,
+                    height: 50,
+                    child: Center(
+                      child: Text(
+                        'Sair',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Color(0xFF150050),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ],
       ),
 
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.only(top: 17.0, bottom: 8.0, left: 10.0, right: 10.0),
+            padding: const EdgeInsets.only(
+              top: 17.0,
+              bottom: 8.0,
+              left: 10.0,
+              right: 10.0,
+            ),
             child: TextField(
               controller: _controladorFiltragem,
               onChanged: (descricao) {
@@ -152,16 +206,10 @@ class _MetodosState extends State<Metodos> {
               },
               decoration: const InputDecoration(
                 enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Color(0xFF150050),
-                    width: 1
-                  ),
+                  borderSide: BorderSide(color: Color(0xFF150050), width: 1),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Color(0xFF150050),
-                    width: 2
-                  ),
+                  borderSide: BorderSide(color: Color(0xFF150050), width: 2),
                 ),
                 hintText: "Pesquisar",
                 prefixIcon: Icon(Icons.search),

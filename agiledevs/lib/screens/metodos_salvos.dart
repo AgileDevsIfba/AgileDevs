@@ -53,7 +53,7 @@ class _MetodosSalvosState extends State<MetodosSalvos> {
   @override
   Widget build(BuildContext context) {
     bool usuarioLogado = estadoApp.usuario != null;
-
+    print("usuario está logado!!!!!!!!: ${usuarioLogado}" );
     if (!usuarioLogado) {
       return const Center(
         child: Text("Você precisa estar logado para ver os métodos salvos."),

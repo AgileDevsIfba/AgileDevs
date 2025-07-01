@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:agiledevs/Utils/autenticador.dart';
+import 'package:agiledevs/models/usuario.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -50,7 +51,7 @@ class EstadoApp extends ChangeNotifier {
   }
 
 
-  void onLogin(Usuario usuario) async {
+  void onLogin(Usuario? usuario) async {
     _usuario = usuario;
     await _loadMetodosSalvos();
     notifyListeners();

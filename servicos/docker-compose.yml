@@ -1,6 +1,51 @@
 version: '3.8'
 
 services:
+  avaliacoes:
+    build:
+      context: .
+      dockerfile: dockerfiles/laravel/Dockerfile
+    container_name: avaliacoes
+    restart: always
+    volumes:
+      - ./avaliacoes:/var/www/html
+    ports:
+      - 5000:80
+    depends_on:
+      - agiledevs_db
+    networks:
+      - agiledevs_network
+
+  favoritos:
+    build:
+      context: .
+      dockerfile: dockerfiles/laravel/Dockerfile
+    container_name: favoritos
+    restart: always
+    volumes:
+      - ./favoritos:/var/www/html
+    ports:
+      - 5001:80
+    depends_on:
+      - agiledevs_db
+    networks:
+      - agiledevs_network
+
+  metodos:
+    build:
+      context: .
+      dockerfile: dockerfiles/laravel/Dockerfile
+    container_name: metodos
+    restart: always
+    volumes:
+      - ./metodos:/var/www/html
+    ports:
+      - 5002:80
+    depends_on:
+      - agiledevs_db
+    networks:
+      - agiledevs_network
+
   usuarios:
     build:
       context: .

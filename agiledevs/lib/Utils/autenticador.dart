@@ -41,7 +41,6 @@ class Autenticador {
       return Usuario(googleUser.displayName, googleUser.email);
 
     } catch (erro) {
-      print("Erro no login: $erro");
       return null;
     }
   }

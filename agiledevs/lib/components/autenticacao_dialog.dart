@@ -42,10 +42,15 @@ class AutenticacaoDialog extends StatelessWidget {
               final usuario = await Autenticador.login();
               estadoApp.onLogin(usuario);
               if (usuario != null) {
+                Toast.show(
+                    "Você foi conectado com sucesso!",
+                    duration: Toast.lengthLong,
+                    gravity: Toast.bottom,
+                  );
                 final usuarioSalvo = await ServicoUsuarios().salvar(usuario);
                 if (usuarioSalvo != null) {
                   Toast.show(
-                    "Você foi conectado com sucesso",
+                    "Usuário salvo com sucesso!",
                     duration: Toast.lengthLong,
                     gravity: Toast.bottom,
                   );

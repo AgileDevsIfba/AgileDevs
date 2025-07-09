@@ -34,5 +34,9 @@ COPY docker/entrypoint.sh /entrypoint.sh
 # Dá permissão de execução
 RUN chmod +x /entrypoint.sh
 
+RUN usermod -u 1000 www-data && \
+    groupmod -g 1000 www-data && \
+    chown -R www-data:www-data /var/www/html
+
 # Define o entrypoint padrão
 ENTRYPOINT ["/entrypoint.sh"]

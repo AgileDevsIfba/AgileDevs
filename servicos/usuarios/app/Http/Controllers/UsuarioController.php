@@ -13,10 +13,10 @@ class UsuarioController extends Controller
         $nome = $request->input('nome');
         $email = $request->input('email');
 
-        $user = Usuarios::firstOrCreate(
+        $usuario = Usuarios::firstOrCreate(
             ['email' => $email],
             ['nome' => $nome]
         );
-        return response()->json(['user' => $user]);
+        return response()->json(['usuario' => $usuario]);
     }
 }

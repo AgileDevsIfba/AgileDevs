@@ -132,7 +132,7 @@ class _TelaState extends State<Tela> {
           items: [
             BottomNavigationBarItem(
               icon: Icon(Icons.home_outlined, size: 35),
-              label: 'Práticas',
+              label: 'Home',
               activeIcon: Icon(
                 Icons.home_rounded,
                 color: Color(0xFF150050),

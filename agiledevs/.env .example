@@ -1,6 +1,6 @@
 # Adicione o IP do host onde o serviço está rodando.
 API_BASE_URL="http://SEU_IP:5005/"
-USUARIOS_API=http://SEU_IP:5003/api/login
-METODOS_API=http://SEU_IP:5002/api
-FAVORITOS_API=http://SEU_IP:5001/api
-AVALIACOES_API=http://SEU_IP:5000/api
+USUARIOS_API="http://SEU_IP:5003/api/login"
+METODOS_API="http://SEU_IP:5002/api"
+FAVORITOS_API="http://SEU_IP:5001/api"
+AVALIACOES_API="http://SEU_IP:5000/api"

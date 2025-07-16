@@ -1,4 +1,5 @@
 import 'package:agiledevs/Utils/estado.dart';
+import 'package:agiledevs/apis/api.dart';
 import 'package:agiledevs/components/avaliacao_card.dart';
 import 'package:agiledevs/components/avaliacao_form.dart';
 import 'package:agiledevs/models/avaliacao.dart';
@@ -10,6 +11,9 @@ class ModalAvaliacao extends StatefulWidget {
   final bool usuarioLogado;
   final Function(Avaliacao) onAvaliacaoSubmit;
   final Function(int) onAvaliacaoDelete;
+  final double mediaAvaliacoes;
+  final int totalAvaliacoes;
+  final VoidCallback onAtualizarMedia;
 
   const ModalAvaliacao({
     super.key,
@@ -17,6 +21,9 @@ class ModalAvaliacao extends StatefulWidget {
     required this.usuarioLogado,
     required this.onAvaliacaoSubmit,
     required this.onAvaliacaoDelete,
+    required this.mediaAvaliacoes,
+    required this.totalAvaliacoes,
+    required this.onAtualizarMedia,
   });
 
   @override
@@ -25,26 +32,101 @@ class ModalAvaliacao extends StatefulWidget {
 
 class _ModalAvaliacaoState extends State<ModalAvaliacao> {
   late List<Avaliacao> _avaliacoesLocais;
+  late ServicoAvaliacoes _servicoAvaliacoes;
+
+  late double _mediaAvaliacoes;
+  late int _totalAvaliacoes;
 
   @override
   void initState() {
     super.initState();
     _avaliacoesLocais = List.from(widget.avaliacoes);
+    _servicoAvaliacoes = ServicoAvaliacoes();
+
+    _mediaAvaliacoes = widget.mediaAvaliacoes;
+    _totalAvaliacoes = widget.totalAvaliacoes;
   }
 
-  void _handleAddAvaliacao(Avaliacao novaAvaliacao) {
-    setState(() {
-      _avaliacoesLocais.add(novaAvaliacao);
-    });
-    // Atualiza também o pai (se necessário)
-    widget.onAvaliacaoSubmit(novaAvaliacao);
+  Future<void> _handleAddAvaliacao(Avaliacao novaAvaliacao) async {
+    final adicionar = await _servicoAvaliacoes.adicionarAvaliacao(
+      novaAvaliacao.metodoId,
+      novaAvaliacao.nome,
+      novaAvaliacao.email,
+      novaAvaliacao.nota,
+      novaAvaliacao.tagsPositivas,
+      novaAvaliacao.tagsNegativas,
+      novaAvaliacao.comentario,
+    );
+
+    if (adicionar) {
+      setState(() {
+        _avaliacoesLocais.insert(0,novaAvaliacao);
+      });
+
+      Toast.show(
+        "Avaliação enviada com sucesso!",
+        gravity: Toast.bottom,
+        duration: Toast.lengthShort,
+      );
+
+      widget.onAvaliacaoSubmit(novaAvaliacao);
+      await _atualizarMediaLocal();
+    } else {
+      Toast.show(
+        "Erro ao enviar avaliação. Tente novamente.",
+        gravity: Toast.bottom,
+        duration: Toast.lengthShort,
+      );
+    }
   }
 
-  void _handleDeleteAvaliacao(int index) {
-    setState(() {
-      _avaliacoesLocais.removeAt(index);
-    });
-    widget.onAvaliacaoDelete(index);
+  Future<void> _handleDeleteAvaliacao(int index) async {
+    final avaliacao = _avaliacoesLocais[index];
+    final email = avaliacao.email;
+    final metodoId = estadoApp.idMetodo;
+
+    final sucesso = await _servicoAvaliacoes.excluirAvaliacao(email, metodoId);
+
+    if (sucesso) {
+      setState(() {
+        _avaliacoesLocais.removeAt(index);
+      });
+
+      Toast.show(
+        "Avaliação excluída com sucesso.",
+        duration: Toast.lengthShort,
+        gravity: Toast.bottom,
+      );
+
+      widget.onAvaliacaoDelete(index);
+      _atualizarMediaLocal();
+    } else {
+      Toast.show(
+        "Erro ao excluir avaliação. Tente novamente.",
+        duration: Toast.lengthShort,
+        gravity: Toast.bottom,
+      );
+    }
+  }
+
+  Future<void> _atualizarMediaLocal() async {
+    try {
+      final resultado = await _servicoAvaliacoes.mediaAvaliacoesPorMetodo(
+        estadoApp.idMetodo,
+      );
+
+      setState(() {
+        _mediaAvaliacoes = resultado['media'] ?? 0.0;
+        _totalAvaliacoes = resultado['total'] ?? 0;
+      });
+
+      widget.onAtualizarMedia(); // Notifica o pai para se atualizar também
+    } catch (e) {
+      setState(() {
+        _mediaAvaliacoes = 0.0;
+        _totalAvaliacoes = 0;
+      });
+    }
   }
 
   @override
@@ -52,21 +134,49 @@ class _ModalAvaliacaoState extends State<ModalAvaliacao> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Cabeçalho com média e botão de adicionar
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text(
-                "Avaliações",
-                style: TextStyle(
-                  fontSize: 20,
-                  color: Colors.black87,
-                  fontWeight: FontWeight.bold,
-                ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Avaliações",
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.black87,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      ...List.generate(5, (index) {
+                        if (index < _mediaAvaliacoes.floor()) {
+                          return const Icon(Icons.star, color: Colors.amber);
+                        } else if (index < _mediaAvaliacoes) {
+                          return const Icon(
+                            Icons.star_half,
+                            color: Colors.amber,
+                          );
+                        } else {
+                          return const Icon(
+                            Icons.star_border,
+                            color: Colors.amber,
+                          );
+                        }
+                      }),
+                      const SizedBox(width: 15),
+                      Text(
+                        "${_mediaAvaliacoes.toStringAsFixed(1)} de $_totalAvaliacoes",
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
-            // BOTÃO PARA ADICIONAR AVALIAÇÃO
             IconButton(
               icon: const Icon(Icons.add, size: 40),
               onPressed: () {
@@ -81,9 +191,7 @@ class _ModalAvaliacaoState extends State<ModalAvaliacao> {
                     ),
                     builder:
                         (context) => AvaliacaoForm(
-                          onAvaliacaoSubmit: (avaliacao) {
-                            _handleAddAvaliacao(avaliacao);
-                          },
+                          onAvaliacaoSubmit: _handleAddAvaliacao,
                         ),
                   );
                 } else {
@@ -98,9 +206,11 @@ class _ModalAvaliacaoState extends State<ModalAvaliacao> {
             ),
           ],
         ),
+
         const Divider(color: Colors.grey, thickness: 1, height: 1),
+
+        // Lista de avaliações
         Expanded(
-          flex: 2,
           child:
               _avaliacoesLocais.isEmpty
                   ? const Center(
@@ -117,9 +227,7 @@ class _ModalAvaliacaoState extends State<ModalAvaliacao> {
                           avaliacao.email == estadoApp.usuario?.email;
                       final card = AvaliacaoCard(avaliacao);
 
-                      if (!podeExcluir) {
-                        return card;
-                      }
+                      if (!podeExcluir) return card;
 
                       return Dismissible(
                         key: Key(avaliacao.email),
@@ -134,34 +242,35 @@ class _ModalAvaliacaoState extends State<ModalAvaliacao> {
                           ),
                         ),
                         confirmDismiss: (direction) async {
-                          final confirm = await showDialog<bool>(
-                            context: context,
-                            builder:
-                                (context) => AlertDialog(
-                                  title: const Text("Excluir Avaliação"),
-                                  content: const Text(
-                                    "Você tem certeza que deseja excluir esta avaliação?",
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed:
-                                          () =>
-                                              Navigator.of(context).pop(false),
-                                      child: const Text("Cancelar"),
+                          return await showDialog<bool>(
+                                context: context,
+                                builder:
+                                    (context) => AlertDialog(
+                                      title: const Text("Excluir Avaliação"),
+                                      content: const Text(
+                                        "Deseja mesmo excluir esta avaliação?",
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed:
+                                              () => Navigator.of(
+                                                context,
+                                              ).pop(false),
+                                          child: const Text("Cancelar"),
+                                        ),
+                                        TextButton(
+                                          onPressed:
+                                              () => Navigator.of(
+                                                context,
+                                              ).pop(true),
+                                          child: const Text("Excluir"),
+                                        ),
+                                      ],
                                     ),
-                                    TextButton(
-                                      onPressed:
-                                          () => Navigator.of(context).pop(true),
-                                      child: const Text("Excluir"),
-                                    ),
-                                  ],
-                                ),
-                          );
-                          return confirm ?? false;
+                              ) ??
+                              false;
                         },
-                        onDismissed: (direction) {
-                          _handleDeleteAvaliacao(index);
-                        },
+                        onDismissed: (_) => _handleDeleteAvaliacao(index),
                         child: card,
                       );
                     },

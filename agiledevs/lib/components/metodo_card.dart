@@ -1,16 +1,27 @@
 import 'package:agiledevs/Utils/estado.dart';
+import 'package:agiledevs/components/autenticacao_dialog.dart';
 import 'package:agiledevs/models/metodo.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:toast/toast.dart';
 
 class MetodoCard extends StatelessWidget {
   final Metodo metodos;
+  final bool isFavorito;
   final bool usuarioLogado;
-  const MetodoCard(this.metodos, this.usuarioLogado, {super.key});
+  final VoidCallback onToggleFavorito;
+
+  const MetodoCard({
+    required this.metodos,
+    required this.isFavorito,
+    required this.usuarioLogado,
+    required this.onToggleFavorito,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final estadoApp = Provider.of<EstadoApp>(context);
+
     return GestureDetector(
       onTap: () {
         estadoApp.showDetails(metodos.id);
@@ -22,7 +33,7 @@ class MetodoCard extends StatelessWidget {
           height: 200,
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: AssetImage(metodos.image),
+              image: const AssetImage('lib/data/images/method.png'),
               fit: BoxFit.cover,
               opacity: 0.3,
             ),
@@ -55,7 +66,7 @@ class MetodoCard extends StatelessWidget {
                             builder: (context, value, child) {
                               return IconButton(
                                 icon: Icon(
-                                  usuarioLogado && estadoApp.metodosSalvos.contains(metodos.id)
+                                  usuarioLogado && isFavorito
                                       ? Icons.bookmark
                                       : Icons.bookmark_border,
                                 ),
@@ -63,29 +74,14 @@ class MetodoCard extends StatelessWidget {
                                     usuarioLogado ? Colors.white : Colors.grey,
                                 onPressed: () async {
                                   if (!usuarioLogado) {
-                                    Toast.show(
-                                      "Você precisa estar logado para salvar",
-                                      duration: Toast.lengthShort,
-                                      gravity: Toast.bottom,
+                                    showDialog(
+                                      context: context,
+                                      builder:
+                                          (context) =>
+                                              const AutenticacaoDialog(),
                                     );
                                   } else {
-                                    if (estadoApp.metodosSalvos.contains(
-                                      metodos.id,
-                                    )) {
-                                      await estadoApp.removerMetodo(metodos.id);
-                                      Toast.show(
-                                        "Método removido dos salvos",
-                                        duration: Toast.lengthShort,
-                                        gravity: Toast.bottom,
-                                      );
-                                    } else {
-                                      await estadoApp.salvarMetodo(metodos.id);
-                                      Toast.show(
-                                        "Método salvo com sucesso",
-                                        duration: Toast.lengthShort,
-                                        gravity: Toast.bottom,
-                                      );
-                                    }
+                                    onToggleFavorito();
                                   }
                                 },
                               );
@@ -112,10 +108,31 @@ class MetodoCard extends StatelessWidget {
                         ),
                         Row(
                           children: [
-                            Icon(Icons.star, color: Colors.yellow, size: 25),
-                            // Text(
-                            //   'likes: ${mt.likes}',
-                            // )
+                            ...List.generate(5, (index) {
+                              final media =
+                                  metodos.mediaNota ??
+                                  0.0; // garante que não seja nulo
+                              if (index < media.floor()) {
+                                return const Icon(
+                                  Icons.star,
+                                  color: Colors.amber,
+                                  size: 20,
+                                );
+                              } else if (index < media) {
+                                return const Icon(
+                                  Icons.star_half,
+                                  color: Colors.amber,
+                                  size: 20,
+                                );
+                              } else {
+                                return const Icon(
+                                  Icons.star_border,
+                                  color: Colors.amber,
+                                  size: 20,
+                                );
+                              }
+                            }),
+                            const SizedBox(width: 6),
                           ],
                         ),
                       ],

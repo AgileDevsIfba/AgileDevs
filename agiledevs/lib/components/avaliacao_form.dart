@@ -3,7 +3,7 @@ import 'package:agiledevs/models/avaliacao.dart';
 import 'package:flutter/material.dart';
 
 class AvaliacaoForm extends StatefulWidget {
-  final Function(Avaliacao) onAvaliacaoSubmit;
+  final Future<void> Function(Avaliacao) onAvaliacaoSubmit;
 
   const AvaliacaoForm({super.key, required this.onAvaliacaoSubmit});
 
@@ -45,7 +45,7 @@ class _AvaliacaoFormState extends State<AvaliacaoForm> {
     });
   }
 
-  void _enviarAvaliacao() {
+  Future<void> _enviarAvaliacao() async {
     final usuario = estadoApp.usuario;
 
     if (usuario == null) {
@@ -67,7 +67,7 @@ class _AvaliacaoFormState extends State<AvaliacaoForm> {
       comentario: _comentarioController.text.trim(),
     );
 
-    widget.onAvaliacaoSubmit(avaliacao);
+    await widget.onAvaliacaoSubmit(avaliacao);
     Navigator.of(context).pop();
   }
 

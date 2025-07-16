@@ -1,6 +1,8 @@
+// ignore: unused_import
 import 'dart:convert';
 
 import 'package:agiledevs/Utils/estado.dart';
+import 'package:agiledevs/apis/api.dart';
 import 'package:agiledevs/components/modal_avaliacao.dart';
 import 'package:agiledevs/models/avaliacao.dart';
 import 'package:flutter/material.dart';
@@ -19,16 +21,18 @@ class Detalhes extends StatefulWidget {
 enum _EstadoMetodo { naoVerificado, temMetodo, semMetodo }
 
 class _DetalhesState extends State<Detalhes> {
-  late dynamic _feedEstatico;
   bool _isLoading = true;
+  double _mediaAvaliacoes = 0.0;
+  int _totalAvaliacoes = 0;
   final bool usuarioLogado = estadoApp.usuario != null;
 
   _EstadoMetodo _temMetodo = _EstadoMetodo.naoVerificado;
-  late dynamic _metodo;
 
   late List<Avaliacao> _avaliacoesDoMetodo = [];
 
   late final WebViewController _webViewController;
+  late ServicoAvaliacoes _servicoAvaliacoes;
+  late ServicoMetodos _servicoMetodos;
 
   @override
   void initState() {
@@ -48,6 +52,7 @@ class _DetalhesState extends State<Detalhes> {
               },
               onPageFinished: (url) async {
                 await _loadAvaliacoes();
+                await _loadMediaAvaliacoes();
                 setState(() {
                   _isLoading = false;
                 });
@@ -61,46 +66,54 @@ class _DetalhesState extends State<Detalhes> {
               },
             ),
           );
-    _readFeedEstatico();
-  }
-
-  Future<void> _readFeedEstatico() async {
-    final String conteudoJson = await rootBundle.loadString(
-      "lib/data/json/feed.json",
-    );
-    _feedEstatico = await json.decode(conteudoJson);
+    _servicoMetodos = ServicoMetodos();
+    _servicoAvaliacoes = ServicoAvaliacoes();
     _carregarMetodos();
   }
 
   Future<void> _loadAvaliacoes() async {
-    final jsonString = await rootBundle.loadString(
-      'lib/data/json/avaliacoes.json',
+    final avaliacoes = await _servicoAvaliacoes.listarAvaliacoesPorMetodo(
+      estadoApp.idMetodo,
     );
-    final jsonData = jsonDecode(jsonString);
-    List todas = jsonData['avaliacoes'];
 
-    _avaliacoesDoMetodo =
-        todas
-            .map((item) => Avaliacao.fromJson(item))
-            .where((a) => a.metodoId == estadoApp.idMetodo)
-            .toList();
+    setState(() {
+      _avaliacoesDoMetodo =
+          avaliacoes.map((a) => Avaliacao.fromJson(a)).toList();
+    });
   }
 
-  void _carregarMetodos() {
-    setState(() {
-      _metodo = _feedEstatico["metodos"].firstWhere(
-        (metodo) => metodo["id"] == estadoApp.idMetodo,
+  Future<void> _carregarMetodos() async {
+    try {
+      final metodoJson = await _servicoMetodos.buscarMetodoPorId(
+        estadoApp.idMetodo,
       );
+      setState(() {
+        _temMetodo = _EstadoMetodo.temMetodo;
+      });
 
-      _temMetodo =
-          _metodo != null ? _EstadoMetodo.temMetodo : _EstadoMetodo.semMetodo;
+      final String apiUrl = dotenv.env['API_BASE_URL']!;
+      final String folder = metodoJson["folder"];
+      _webViewController.loadRequest(Uri.parse("$apiUrl/$folder/index.html"));
+    } catch (e) {
+      setState(() {
+        _temMetodo = _EstadoMetodo.semMetodo;
+      });
+    }
+  }
 
-      if (_temMetodo == _EstadoMetodo.temMetodo) {
-        final String apiUrl = dotenv.env['API_BASE_URL']!;
-        final String folder = _metodo["folder"];
-        _webViewController.loadRequest(Uri.parse("$apiUrl/$folder/index.html"));
-      }
-    });
+  Future<void> _loadMediaAvaliacoes() async {
+    try {
+      final avaliacaoMedia = await _servicoAvaliacoes.mediaAvaliacoesPorMetodo(estadoApp.idMetodo);
+      setState(() {
+        _mediaAvaliacoes = avaliacaoMedia['media'] ?? 0.0;
+        _totalAvaliacoes = avaliacaoMedia['total'] ?? 0;
+      });
+    } catch (e) {
+      setState(() {
+        _mediaAvaliacoes = 0.0;
+        _totalAvaliacoes = 0;
+      });
+    }
   }
 
   Widget _exibirMensagemMetodoInexistente() {
@@ -185,75 +198,53 @@ class _DetalhesState extends State<Detalhes> {
         children: [
           // WebView
           Expanded(
-            child: Stack(children: [
-              WebViewWidget(controller: _webViewController),
-              if (_isLoading)
-            const Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-              ),
+            child: Stack(
+              children: [
+                WebViewWidget(controller: _webViewController),
+                if (_isLoading)
+                  const Center(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                    ),
+                  ),
+              ],
             ),
-            ]),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-            onPressed: () => showModalBottomSheet(
+        onPressed:
+            () => showModalBottomSheet(
               context: context,
               isScrollControlled: true,
-              builder: (context) => Container(
-                height: MediaQuery.of(context).size.height * 0.4,
-                child: ModalAvaliacao(
-                  avaliacoes: _avaliacoesDoMetodo,
-                  usuarioLogado: usuarioLogado,
-                  onAvaliacaoSubmit: (avaliacao) {
-                    setState(() => _avaliacoesDoMetodo.add(avaliacao));
-                  },
-                  onAvaliacaoDelete: (index) {
-                    setState(() => _avaliacoesDoMetodo.removeAt(index));
-                  },
-                ),
-              ),
+              builder:
+                  (context) => Container(
+                    height: MediaQuery.of(context).size.height * 0.4,
+                    child: ModalAvaliacao(
+                      avaliacoes: _avaliacoesDoMetodo,
+                      usuarioLogado: usuarioLogado,
+                      mediaAvaliacoes: _mediaAvaliacoes,
+                      totalAvaliacoes: _totalAvaliacoes,
+                      onAvaliacaoSubmit: (avaliacao) {
+                        setState(() => _avaliacoesDoMetodo.add(avaliacao));
+                        _loadMediaAvaliacoes();
+                      },
+                      onAvaliacaoDelete: (index) {
+                        setState(() => _avaliacoesDoMetodo.removeAt(index));
+                        _loadMediaAvaliacoes();
+                      },
+                      onAtualizarMedia: () {
+                        _loadMediaAvaliacoes();
+                      },
+                    ),
+                  ),
             ),
-            label: const Text("Ver avaliações", style: TextStyle(fontSize: 16),),
-            icon: const Icon(Icons.reviews),
-          ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () {
-      //     showModalBottomSheet(
-      //       context: context,
-      //       isScrollControlled: true,
-      //       shape: const RoundedRectangleBorder(
-      //         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      //       ),
-      //       builder:
-      //           (context) => DraggableScrollableSheet(
-      //             expand: false,
-      //             initialChildSize: 0.7,
-      //             minChildSize: 0.5,
-      //             maxChildSize: 0.9,
-      //             builder: (context, scrollController) {
-      //               return ModalAvaliacao(
-      //                 avaliacoes: _avaliacoesDoMetodo,
-      //                 usuarioLogado: usuarioLogado,
-      //                 onAvaliacaoSubmit: (avaliacao) {
-      //                   setState(() {
-      //                     _avaliacoesDoMetodo.add(avaliacao);
-      //                   });
-      //                 },
-      //                 onAvaliacaoDelete: (index) {
-      //                   setState(() {
-      //                     _avaliacoesDoMetodo.removeAt(index);
-      //                   });
-      //                 },
-      //               );
-      //             },
-      //           ),
-      //     );
-      //   },
-      //   tooltip: 'Ver avaliações',
-      //   child: const Icon(Icons.reviews),
-      // ),
+        label: const Text(
+          "Avaliações",
+          style: TextStyle(fontSize: 16, color: Color(0xFF150050)),
+        ),
+        icon: const Icon(Icons.reviews, color: Color(0xFF150050)),
+      ),
     );
   }
 

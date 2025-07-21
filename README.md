@@ -117,4 +117,4 @@ flutter pub get
 flutter run
 ```
 
-<p align="center">Desenvolvido por Daiane Alves e colaboradores.</p>
+<p align="center">Desenvolvido por Daiane Porcena Alves e colaboradores.</p>

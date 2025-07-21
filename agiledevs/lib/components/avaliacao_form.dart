@@ -45,6 +45,18 @@ class _AvaliacaoFormState extends State<AvaliacaoForm> {
     });
   }
 
+  void _atualizarNota(int novaNota) {
+    setState(() {
+      _nota = novaNota;
+      // Limpar tags quando a nota muda
+      if (novaNota >= 4) {
+        _tagsNegativasSelecionadas.clear();
+      } else if (novaNota > 0) {
+        _tagsPositivasSelecionadas.clear();
+      }
+    });
+  }
+
   Future<void> _enviarAvaliacao() async {
     final usuario = estadoApp.usuario;
 
@@ -81,7 +93,7 @@ class _AvaliacaoFormState extends State<AvaliacaoForm> {
             filled ? Icons.star : Icons.star_border,
             color: Colors.amber,
           ),
-          onPressed: () => setState(() => _nota = index + 1),
+          onPressed: () => _atualizarNota(index + 1),
         );
       }),
     );
@@ -223,80 +235,4 @@ class _AvaliacaoFormState extends State<AvaliacaoForm> {
     );
   }
 
-  // Widget build(BuildContext context) {
-  //   return Dialog(
-  //     insetPadding: const EdgeInsets.all(20),
-  //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-  //     child: Padding(
-  //       padding: const EdgeInsets.all(20),
-  //       child: Stack(
-  //         children: [
-  //           Column(
-  //             mainAxisSize: MainAxisSize.min,
-  //             children: [
-  //               const Text(
-  //                 "Avalie este método",
-  //                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-  //               ),
-  //               const SizedBox(height: 10),
-  //               _buildEstrelas(),
-  //               const SizedBox(height: 10),
-  //               Wrap(
-  //                 spacing: 8,
-  //                 runSpacing: 8,
-  //                 children: _tagsPositivasDisponiveis.map((tag) {
-  //                   final selecionada = _tagsSelecionadas.contains(tag);
-  //                   return ChoiceChip(
-  //                     label: Text(tag),
-  //                     selected: selecionada,
-  //                     selectedColor: Colors.green,
-  //                     labelStyle: TextStyle(
-  //                       color: selecionada ? Colors.white : Colors.black,
-  //                     ),
-  //                     onSelected: (_) => _toggleTag(tag),
-  //                   );
-  //                 }).toList(),
-  //               ),
-  //               const SizedBox(height: 20),
-  //               Align(
-  //                 alignment: Alignment.centerLeft,
-  //                 child: Text("Feedback", style: TextStyle(fontWeight: FontWeight.bold)),
-  //               ),
-  //               const SizedBox(height: 5),
-  //               TextField(
-  //                 controller: _comentarioController,
-  //                 maxLines: 3,
-  //                 decoration: InputDecoration(
-  //                   hintText: "Deixe o seu feedback...",
-  //                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-  //                 ),
-  //               ),
-  //               const SizedBox(height: 20),
-  //               SizedBox(
-  //                 width: double.infinity,
-  //                 child: ElevatedButton(
-  //                   onPressed: _enviarAvaliacao,
-  //                   style: ElevatedButton.styleFrom(
-  //                     backgroundColor: Colors.deepPurple,
-  //                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-  //                     padding: const EdgeInsets.symmetric(vertical: 14),
-  //                   ),
-  //                   child: const Text("Enviar", style: TextStyle(color: Colors.white)),
-  //                 ),
-  //               ),
-  //             ],
-  //           ),
-  //           Positioned(
-  //             right: 0,
-  //             top: 0,
-  //             child: IconButton(
-  //               icon: const Icon(Icons.close),
-  //               onPressed: () => Navigator.of(context).pop(),
-  //             ),
-  //           )
-  //         ],
-  //       ),
-  //     ),
-  //   );
 }     
-//   }
